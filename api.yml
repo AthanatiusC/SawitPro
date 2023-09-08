@@ -1,0 +1,206 @@
+# This is the OpenAPI specification for your service. It is used to generate the client code.
+# To generate the server code, use the Gradle task `openApiGenerate`. The 
+# generated code will be placed in `build/generate-resources/main`.
+#
+# We will evaluate you based on how well you design your API.
+# 1. How well it follows REST principles.
+# 2. How easy it is to understand and use.
+#
+# References
+# 1. https://swagger.io/specification/
+openapi: "3.0.0"
+info:
+  version: 1.0.0
+  title: User Service
+  license:
+    name: MIT
+servers:
+  - url: http://localhost
+paths:
+  /user:
+    get:
+      summary: Get User Profile
+      description: Return valid user request's profile data by using User ID stored in JWT token 
+      operationId: get-user
+      parameters:
+        - name: Authorization
+          in: header
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Get user success
+          content:
+            application/json:    
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          description: Validation failed
+          content:
+            application/json:    
+              schema:
+                $ref: "#/components/schemas/ErrorValidationResponse"
+        '500':
+          description: Internal error occured
+          content:
+            application/json:   
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    post:
+      summary: Registers User
+      description: Registers user by using data provided in the request body
+      operationId: register
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - phone_number
+                - full_name
+                - password
+              properties:
+                phone_number:
+                  type: string
+                full_name:
+                  type: string
+                password:
+                  type: string
+      responses:
+        '200':
+          description: Registration success
+          content:
+            application/json:    
+              schema:
+                $ref: "#/components/schemas/RegisterResponse"
+        '400':
+          description: Validation failed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorValidationResponse"
+        '500':
+          description: Internal error occured
+          content:
+            application/json:   
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    put:
+      summary: Update User
+      description: Update valid user request's profile data, on success return the updated data
+      operationId: update-user
+      parameters:
+        - name: Authorization
+          in: header
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/User"
+      responses:
+        '200':
+          description: Update user success
+          content:
+            application/json:    
+              schema:
+                $ref: "#/components/schemas/User"
+        '400':
+          description: Validation failed
+          content:
+            application/json:   
+              schema:
+                $ref: "#/components/schemas/ErrorValidationResponse"
+        '500':
+          description: Internal error occured
+          content:
+            application/json:   
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        
+  /login:
+    post:
+      summary: User authentication endpoint
+      description: Authenticate user by searching phone number and password, on success returns a valid JWT token which user can use to get his/her own data.
+      operationId: login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - phone_number
+                - password
+              properties:
+                phone_number:
+                  type: string
+                password:
+                  type: string
+      responses:
+        '200':
+          description: User successfully registered
+          content:
+            application/json:    
+              schema:
+                $ref: "#/components/schemas/LoginResponse"
+        '400':
+          description: User validation failed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorValidationResponse"
+        '500':
+          description: Internal error occured
+          content:
+            application/json:   
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+components:
+  schemas:
+    User:
+      type: object
+      required:
+        - full_name
+        - phone_number
+      properties:
+        full_name:
+          type: string
+        phone_number:
+          type: string
+    RegisterResponse:
+      type: object
+      required:
+        - id
+      properties:
+        id:
+          type: integer
+    LoginResponse:
+      type: object
+      required:
+        - id
+        - token
+      properties:
+        id:
+          type: integer
+        token:
+          type: string
+    ErrorResponse:
+      type: object
+      required:
+        - message
+      properties:
+        message:
+          type: string
+    ErrorValidationResponse:
+      type: object
+      required:
+        - messages
+      properties:
+        messages:
+          type: array
+          items:
+            type: string
